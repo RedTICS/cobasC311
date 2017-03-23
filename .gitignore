@@ -15,3 +15,7 @@ configTest.json
 
 # Archivos ocultos
 .hg
+
+# Archivos .exe o .zip
+*.exe
+*.zip

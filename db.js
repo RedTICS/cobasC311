@@ -18,7 +18,8 @@ sql.setDefaultConfig( dbConfig );
 function saveResult(result,order){
     var logTime = new Date();
     var tipoMuestra = "Suero/Plasma";
-    switch (order.biomaterial){ 
+    logger.info( 'Tipo de Muestra:', order.biomaterial);
+    switch (parseInt(order.biomaterial)){ 
             case 1: tipoMuestra="Suero/Plasma";break; // TODO Colocar los Prefijos del tipo de muestra correctos
             case 2: tipoMuestra="Orina";break;
             case 3: tipoMuestra="CSF";break;
