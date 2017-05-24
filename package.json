@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha"
   },
-  "author": "Subsecretaría de Salud de Neuquén",
+  "author": "David Nievas",
   "license": "ISC",
   "dependencies": {
     "mocha": "3.1.2",

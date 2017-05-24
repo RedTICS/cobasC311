@@ -18,7 +18,6 @@ sql.setDefaultConfig( dbConfig );
 function saveResult(result,order){
     var logTime = new Date();
     var tipoMuestra = "Suero/Plasma";
-    logger.info( 'Tipo de Muestra:', order.biomaterial);
     switch (parseInt(order.biomaterial)){ 
             case 1: tipoMuestra="Suero/Plasma";break; // TODO Colocar los Prefijos del tipo de muestra correctos
             case 2: tipoMuestra="Orina";break;
@@ -26,12 +25,34 @@ function saveResult(result,order){
             case 4: tipoMuestra="Suprnt";break;
             case 5: tipoMuestra="Otros";break;
         }
-    
+	
+	var sampleId = order.sampleId;
+	var sampleIdSinBlancos = sampleId.trim();
+	var sampleProtocolo = sampleIdSinBlancos.substr(1);
+	var sampleSector = sampleIdSinBlancos.charAt(0);
+	
+	// console.log('sin blancos:', sampleIdSinBlancos);
+	// console.log('el protocolo:', sampleProtocolo.length);
+	// console.log('el protocolo:', sampleProtocolo);
+	// console.log('el sector:', sampleSector);
+	var queryModificada;
+	//Fix para cuando tienen los protocolos divididos por sectores
+	if (!isNaN(sampleSector)){
+		sampleId = parseInt(sampleIdSinBlancos);
+		queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE numeroSector = @_sampleId AND baja=0 AND estado<2";
+	}else
+	{
+		sampleId = parseInt(sampleProtocolo);
+		queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE numeroSector = @_sampleId AND prefijoSector = @_sampleSector AND baja=0 AND estado<2";
+	}
+	
+	//console.log('Esta es la query:', queryModificada);
     sql.getPlainContext()
         .step( "queryProtocoloById", {
-                query: "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE numero = @_sampleId AND baja=0 AND estado<2",
+                query: queryModificada,
                 params: {
-                    _sampleId: { type: sql.INT, val: order.sampleId }
+                    _sampleId: { type: sql.INT, val: sampleId },
+					_sampleSector: {type: sql.NVARCHAR, val: sampleSector}
                 }
             } )
         .step( "queryCobasC311WithBiomaterial", function( execute, data ) {

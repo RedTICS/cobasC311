@@ -36,7 +36,7 @@ function handleResult(resultRecord, orderRecord){
     var order = new record.OrderRecord();
     order.build(orderRecord);
     var result = new record.ResultRecord(resultRecord); 
-    db.saveResult(result,order);
+	db.saveResult(result,order);
 }
 
 
@@ -85,8 +85,8 @@ function composeOrderMessages(protocol){
     var comment = new record.CommentRecord();
     var termination = new record.TerminationRecord();
     
-    console.log(patient.toASTM());
-    console.log(order.toASTM());
+    // console.log(patient.toASTM());
+    // console.log(order.toASTM());
     return [[header.toASTM(),patient.toASTM(),order.toASTM(),comment.toASTM(),termination.toASTM()]];
     
 }

@@ -39,6 +39,9 @@ function initPort(err, ports){
 
 function handlePortOpen() {
     logger.info('Port open. Data rate: ' + port.options.baudRate);
+    logger.info('Data Bits.: ' + port.options.dataBits);
+    logger.info('Parity.: ' + port.options.parity);
+    logger.info('Stop bit.: ' + port.options.stopBits);
 }
 
 function handlePortClose() {
