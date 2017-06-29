@@ -26,15 +26,32 @@ function saveResult(result,order){
             case 5: tipoMuestra="Otros";break;
         }
 	
-	var sampleId = order.sampleId;
-	var sampleIdSinBlancos = sampleId.trim();
-	var sampleProtocolo = sampleIdSinBlancos.substr(1);
-	var sampleSector = sampleIdSinBlancos.charAt(0);
+var sampleId = order.sampleId;
+var sampleIdSinBlancos = sampleId.trim();
+var sampleProtocolo='';
+var sampleSector = '';
+
+for (var i = 0; i < sampleIdSinBlancos.length; i++) {
+        let elem = sampleIdSinBlancos.charAt(i);
+        switch (elem) {
+            case '0':
+            case '1': 
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                    sampleProtocolo = sampleProtocolo + elem;
+                    break;
+                        
+            default:
+                    sampleSector = sampleSector + elem;
+        }
+}  
 	
-	// console.log('sin blancos:', sampleIdSinBlancos);
-	// console.log('el protocolo:', sampleProtocolo.length);
-	// console.log('el protocolo:', sampleProtocolo);
-	// console.log('el sector:', sampleSector);
 	var queryModificada;
 	//Fix para cuando tienen los protocolos divididos por sectores
 	if (!isNaN(sampleSector)){
