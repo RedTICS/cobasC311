@@ -4,6 +4,7 @@ var record = require("./record");
 var logger = require('winston');
 var sql = require("seriate");
 
+
 // SQL Server config settings
 var dbConfig = {
     "server": config.dbServer,
@@ -57,7 +58,7 @@ function saveResult(result, order) {
     //Fix para cuando tienen los protocolos divididos por sectores
     if (!isNaN(sampleSector)) {
         sampleId = parseInt(sampleIdSinBlancos);
-        queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE numero = @_sampleId AND baja=0 AND estado<2";
+        queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE " + config.numeroProtocolo +" = @_sampleId AND baja=0 AND estado<2";
     } else {
         sampleId = parseInt(sampleProtocolo);
         queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE numeroSector = @_sampleId AND prefijoSector = @_sampleSector AND baja=0 AND estado<2";
