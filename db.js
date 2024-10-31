@@ -144,12 +144,10 @@ function saveResult(result, order) {
 
 function hasProtocolsToSend() {
     return sql.execute({
-        query: "SELECT count(*) as total FROM LAB_TempProtocoloEnvio WHERE equipo = @equipo",
+        query: "SELECT count(*) as total FROM LAB_TempProtocoloEnvio WHERE equipo = @equipo AND idEfector = @idEfector",
         params: {
-            equipo: {
-                type: sql.NVARCHAR,
-                val: config.analyzer,
-            }
+            equipo: { type: sql.NVARCHAR, val: config.analyzer, },
+            idEfector: { type : sql.INT , val: config.idEfector }
         }
     })
 
@@ -157,12 +155,13 @@ function hasProtocolsToSend() {
 
 function getNextProtocolToSend() {
     return sql.execute({
-        query: "SELECT TOP 1 * FROM LAB_TempProtocoloEnvio WHERE equipo = @equipo",
+        query: "SELECT TOP 1 * FROM LAB_TempProtocoloEnvio WHERE equipo = @equipo AND idEfector = @idEfector",
         params: {
             equipo: {
                 type: sql.NVARCHAR,
                 val: config.analyzer,
-            }
+            },
+            idEfector: { type : sql.INT , val: config.idEfector }
         }
     })
 }
@@ -193,10 +192,11 @@ function removeProtocol(idTempProtocolo) {
 
 function logMessages(logMessage, logTime) {
     sql.execute({
-        query: "INSERT INTO Temp_Mensaje(mensaje,fechaRegistro) VALUES (@_mensaje,@_fechaRegistro)",
+        query: "INSERT INTO Temp_Mensaje(mensaje,fechaRegistro, idEfector) VALUES (@_mensaje,@_fechaRegistro, @idEfector)",
         params: {
             _mensaje: { type: sql.NVARCHAR, val: logMessage },
             _fechaRegistro: { type: sql.DATETIME, val: logTime },
+            idEfector: { type : sql.INT , val: config.idEfector }
         }
     }).then(function (results) {
         logger.info(results);
