@@ -58,7 +58,7 @@ function saveResult(result, order) {
     //Fix para cuando tienen los protocolos divididos por sectores
     if (!isNaN(sampleSector)) {
         sampleId = parseInt(sampleIdSinBlancos);
-        queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE " + config.numeroProtocolo +" = @_sampleId AND baja=0 AND estado<2";
+        queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE numero = @_sampleId AND baja=0 AND estado<2";
     } else {
         sampleId = parseInt(sampleProtocolo);
         queryModificada = "SELECT TOP 1 idProtocolo FROM LAB_Protocolo WHERE numeroSector = @_sampleId AND prefijoSector = @_sampleSector AND baja=0 AND estado<2";
@@ -190,12 +190,13 @@ function removeProtocol(idTempProtocolo) {
 }
 
 
-function logMessages(logMessage, logTime) {
+function logMessages(logMessage) {
+    var logTime = new Date();
     sql.execute({
         query: "INSERT INTO Temp_Mensaje(mensaje,fechaRegistro, idEfector) VALUES (@_mensaje,@_fechaRegistro, @idEfector)",
         params: {
             _mensaje: { type: sql.NVARCHAR, val: logMessage },
-            _fechaRegistro: { type: sql.DATETIME, val: logTime },
+            _fechaRegistro : {type : sql.DATETIME, val : logTime },
             idEfector: { type : sql.INT , val: config.idEfector }
         }
     }).then(function (results) {
@@ -203,7 +204,7 @@ function logMessages(logMessage, logTime) {
     }, function (err) {
         logger.error("Something bad happened:", err);
     });
-
+   
 }
 
 
@@ -212,5 +213,6 @@ module.exports = {
     hasProtocolsToSend: hasProtocolsToSend,
     getNextProtocolToSend: getNextProtocolToSend,
     removeProtocol: removeProtocol,
-    removeLastProtocolSent: removeLastProtocolSent
+    removeLastProtocolSent: removeLastProtocolSent,
+    logMessages : logMessages
 };
