@@ -8,7 +8,7 @@ var codec = require('./codec');
 var app = require('./app');
 var db = require('./db');
 
-// Init logging
+// Init logging, imprime en consola cuando este en modo debugging
 logger.level = config.logLevel;
 
 // Global variables for Client and Server mode
@@ -19,14 +19,7 @@ var port = null; // COM Port Communication
 init();
 
 function init() {
-    SerialPort.list(function (err, ports) {
-        initPort(err, ports);
-    });
-}
-
-function initPort(err, ports) {
-    var portNumber = ports[0].comName;
-    port = new SerialPort(portNumber);
+    port = new SerialPort(config.comPort);
     port.on('open', handlePortOpen);
     port.on('close', handlePortClose);
     port.on('data', handlePortData);
@@ -35,6 +28,8 @@ function initPort(err, ports) {
         throw new Error('Port Error: ' + err.message);
     })
 }
+
+
 
 function handlePortOpen() {
     logger.info('Port open. Data rate: ' + port.options.baudRate);
@@ -48,13 +43,13 @@ function handlePortClose() {
 }
 
 function handlePortWrite(data) {
-    logger.info(data);
+    logger.info("Escribir data " + data);
     port.write(data);
     initTimer();
 }
 
 function handlePortData(data) {
-    logger.info(data); // Raw Buffer Data
+    logger.info("Manejar data "+ data); // Raw Buffer Data
     var data = data.toString('ascii');
 
     if (isTransferState) {

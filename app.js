@@ -6,7 +6,7 @@ var db = require('./db');
 var record = require('./record')
 
 function processResultRecords(records){
-    db.logMessages("Mensaje de cobas: ", records);
+    //db.logMessages("Mensaje de cobas: "+ records);
     var record = [];
     for (var i = 0; i < records.length; i++) {
         record = records[i];
@@ -38,7 +38,7 @@ function handleResult(resultRecord, orderRecord){
     order.build(orderRecord);
     var result = new record.ResultRecord(resultRecord); 
 	db.saveResult(result,order);
-    db.logMessages("Datos de Cobas a SIL, número de protocolo " , orderRecord[2] );
+    //db.logMessages("Datos de Cobas a SIL, número de protocolo " + orderRecord[2] );
 }
 
 
@@ -89,7 +89,7 @@ function composeOrderMessages(protocol){
     
     // console.log(patient.toASTM());
     // console.log(order.toASTM());
-    db.logMessages("Datos de SIL a Cobas, número de protocolo " , order.sampleId );
+   // db.logMessages("Datos de SIL a Cobas, número de protocolo " +  order.sampleId  );
     return [[header.toASTM(),patient.toASTM(),order.toASTM(),comment.toASTM(),termination.toASTM()]];
     
 }
