@@ -1,16 +1,16 @@
-var config = require('./config');
+/*var config = require('./config');
 var logger = require('winston');
+var db = require('./db');*/
 
-
-var db = require('./db');
-var record = require('./record')
+var record = require('./record');
+var api = require('./api');
 
 function processResultRecords(records){
-    //db.logMessages("Mensaje de cobas: "+ records);
+   // db.logMessages("Mensaje de cobas c311: "+ records);
     var record = [];
     for (var i = 0; i < records.length; i++) {
         record = records[i];
-
+        
         switch (record[0]){
             case "H": handleHeader(record); break;
             case "Q": handleInquiry(record); break;
@@ -36,9 +36,11 @@ function handleTerminator(record){}
 function handleResult(resultRecord, orderRecord){
     var order = new record.OrderRecord();
     order.build(orderRecord);
+    
     var result = new record.ResultRecord(resultRecord); 
-	db.saveResult(result,order);
-    //db.logMessages("Datos de Cobas a SIL, número de protocolo " + orderRecord[2] );
+	//db.saveResult(result,order); //se cambia por envio usando la api
+   // db.logMessages("Datos de Cobas C311 a SIL, número de protocolo " + orderRecord[2] );
+   api.enviarResultado(result,order);
 }
 
 
@@ -89,7 +91,7 @@ function composeOrderMessages(protocol){
     
     // console.log(patient.toASTM());
     // console.log(order.toASTM());
-   // db.logMessages("Datos de SIL a Cobas, número de protocolo " +  order.sampleId  );
+  // db.logMessages("Datos de SIL a Cobas, número de protocolo " +  order.sampleId  );
     return [[header.toASTM(),patient.toASTM(),order.toASTM(),comment.toASTM(),termination.toASTM()]];
     
 }
