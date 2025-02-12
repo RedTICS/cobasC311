@@ -18,7 +18,7 @@ sql.setDefaultConfig(dbConfig);
 function isString(value) { return typeof value === 'string'; }
 
 function saveResult(result, order) {
-    var logTime = new Date();
+    //var logTime = new Date();
     var tipoMuestra = "Suero/Plasma";
     switch (parseInt(order.biomaterial)) {
         case 1: tipoMuestra = "Suero/Plasma"; break; // TODO Colocar los Prefijos del tipo de muestra correctos
@@ -97,7 +97,7 @@ function saveResult(result, order) {
             if (!sets.queryProtocoloById[0]) {
                 errMessage = 'No se encontro el protocolo especificado con id:' + order.sampleId;
                 logger.error(errMessage);
-                logMessages(errMessage, logTime);
+                logMessages(errMessage);
                 throw new Error(errMessage);
             }
 
@@ -115,7 +115,7 @@ function saveResult(result, order) {
                 else {
                     errMessage = 'No se encontro el subItem especificado con idItemCobas:' + result.test + ' y tipoMuestra:' + tipoMuestra;
                     logger.error(errMessage);
-                    logMessages(errMessage, logTime);
+                    logMessages(errMessage);
                 }
             }
 
@@ -138,7 +138,7 @@ function saveResult(result, order) {
         })
         .error(function (err) {
             logger.error(err);
-            logMessages(errMessage, logTime);
+            logMessages(errMessage);
         });
 }
 
@@ -191,12 +191,12 @@ function removeProtocol(idTempProtocolo) {
 
 
 function logMessages(logMessage) {
-    var logTime = new Date();
+   // var logTime = new Date();
     sql.execute({
-        query: "INSERT INTO Temp_Mensaje(mensaje,fechaRegistro, idEfector) VALUES (@_mensaje,@_fechaRegistro, @idEfector)",
+        query: "INSERT INTO Temp_Mensaje(mensaje,fechaRegistro, idEfector) VALUES (@_mensaje,DATEADD(hh,-3,GETUTCDATE()), @idEfector)",
         params: {
             _mensaje: { type: sql.NVARCHAR, val: logMessage },
-            _fechaRegistro : {type : sql.DATETIME, val : logTime },
+            //_fechaRegistro : {type : sql.DATETIME, val : logTime },
             idEfector: { type : sql.INT , val: config.idEfector }
         }
     }).then(function (results) {
