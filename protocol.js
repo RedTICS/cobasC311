@@ -6,7 +6,7 @@ var config = require('./config');
 var token = require('./constants');
 var codec = require('./codec');
 var app = require('./app');
-var db = require('./db');
+//var db = require('./db'); --> Ahora usamos la API
 
 // Init logging, imprime en consola cuando este en modo debugging
 logger.level = config.logLevel;
@@ -72,7 +72,7 @@ var inputChunks = [];
 function readDataAsServer(data) {
     var response = '';
 
-    if (data === token.ENQ) {
+    if (data === token.ENQ) { //ENQ es un código de control que significa "¿Puedo enviar datos?"
         logger.info('Request: ENQ');
         if (!isTransferState) {
             isTransferState = true;
@@ -83,7 +83,7 @@ function readDataAsServer(data) {
             response = token.NAK;
         }
     }
-    else if (data === token.ACK) {
+    else if (data === token.ACK) { //"Mensaje recibido"
         logger.error('ACK is not expected.');
         throw new Error('ACK is not expected.');
     }
@@ -91,7 +91,7 @@ function readDataAsServer(data) {
         logger.error('NAK is not expected.');
         throw new Error('NAK is not expected.');
     }
-    else if (data === token.EOT) {
+    else if (data === token.EOT) { // EOT (fin de transmisión)
         if (isTransferState) {
             isTransferState = false;
             logger.info('EOT accepted. OK');
@@ -244,7 +244,9 @@ function sendMessage() {
             sendData();
         }
         else {
-            db.getNextProtocolToSend().then(function (results) {
+           //db.getNextProtocolToSend()
+           app.getNextProtocolToSend(). //Traigo los datos con la API
+           then(function (results) {
                 for (var i = 0; i < results.length; i++) { // Always only 1 iteration
                     var protocol = results[i];
                     prepareMessagesToSend(protocol)
@@ -265,11 +267,11 @@ function sendData() {
     if (!lastSendOk) {
         if (retryCounter > 6) {
             closeClientSession();
-            if (lastSendData !== token.ENQ) {
+            /*if (lastSendData !== token.ENQ) {
                 // Remove last protocol to send to prevent future problems with 
                 // the same protocol
-                db.removeLastProtocolSent();
-            }
+                //db.removeLastProtocolSent(); --> Ahora con la API se marca como enviado cuando se hace el GET
+            }*/
             return;
         }
         else {
@@ -286,10 +288,10 @@ function sendData() {
             if (outputMessages.length > 0) {
                 openClientSession();
             }
-            else {
-                db.removeLastProtocolSent();
+            /*else {
+               // db.removeLastProtocolSent(); --> Ahora con la API se marca como enviado cuando se hace el GET
                 // checkDataToSend();
-            }
+            }*/
 
             return;
         }
@@ -315,17 +317,19 @@ function openClientSession() {
 
 function closeClientSession() {
     logger.debug('Close Client Session');
-    handlePortWrite(token.EOT);
+    handlePortWrite(token.EOT); // Envia un mensaje EOT (fin de transmisión)
     isTransferState = false;
     isClientMode = false;
     retryCounter = 0;
 }
 
 function checkDataToSend() {
-    db.hasProtocolsToSend().then(function (results) {
-        if (results[0].total > 0) {
+   // db.hasProtocolsToSend().then(function (results) 
+    app.hasProtocolsToSend().then(function (results) //Ahora trae el resultado por API
+    {
+        if (results[0].Cantidad > 0) {
             logger.info("Exist data to send");
-            if (!isClientMode) {
+            if (!isClientMode) {s
                 openClientSession();
             }
         }
@@ -334,8 +338,8 @@ function checkDataToSend() {
                 isClientMode = false;
             }
             else {
-                return;
                 logger.info('Waiting for data to send');
+                return;
             }
         }
     }, function (err) {

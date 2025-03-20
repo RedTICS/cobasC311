@@ -96,12 +96,22 @@ function composeOrderMessages(protocol){
     
 }
 
-function newOrder(){
+// function newOrder(){
     
-    return;
+//     return;
+// }
+
+function getNextProtocolToSend(){
+    return api.traerAnalisis();
+}
+
+function hasProtocolsToSend(){
+    return api.hasProtocolsToSend();
 }
 
 module.exports = {
     processResultRecords : processResultRecords,
-    composeOrderMessages: composeOrderMessages
+    composeOrderMessages: composeOrderMessages,
+    getNextProtocolToSend : getNextProtocolToSend,
+    hasProtocolsToSend : hasProtocolsToSend
 };
