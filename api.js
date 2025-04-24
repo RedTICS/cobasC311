@@ -74,11 +74,14 @@ function traerAnalisis(numeroProtocolo=0){
     URL = URL + config.funcionApiGetAnalisis; //El nombre de la funcion que ejecuta el Store que trae los analisis 
     URL = URL + s_Equipo + "|" + s_idEfector + "|" + numeroProtocolo;  
     //console.log(URL);
-    enviar(URL).
-    then(resultado => {
-      console.log(resultado); 
-      return resultado[0].Data;
-     }) ;
+    return enviar(URL).then(resultado => {
+      if (resultado && resultado[0]) {
+       //  console.log(resultado[0].Data); // Accede al array "Data" que tiene el resultado del SP
+        return resultado[0].Data;
+      } else {
+        throw new Error("[" + new Date().toLocaleString() + "]: La respuesta no contiene datos válidos.");
+      }
+     }) .catch(msg => console.error("[" + new Date().toLocaleString() + "]: Error en hasProtocolsToSend:",msg)) ;
 }
 
 /**
@@ -89,10 +92,13 @@ function hasProtocolsToSend(){
   URL = URL + config.funcionApiGetCantidadAnalisis; // API que ejecuta el GET de Consultas
   URL = URL + "equipo:"+s_Equipo + "|" + "idEfector:"+s_idEfector ;  //para el GET de Consultas se debe poner el nombre del parametro y el valor separado por ':'
     //console.log(URL);
-    enviar(URL).then(resultado => {
-      console.log(resultado);
-       return resultado;
-      }).catch(msg => console.error(msg)) ;
+    return enviar(URL).then(resultado => {
+      if (resultado && resultado[0]) {
+        return resultado; // Devuelve el resultado completo
+      } else {
+          throw new Error("[" + new Date().toLocaleString() + "]: La respuesta no contiene datos válidos.");
+      }
+      }).catch(msg => console.error("[" + new Date().toLocaleString() + "]: Error en hasProtocolsToSend:",msg)) ;
 }
 /**
  * Funcion generica que realiza el Fetch con una URL y unas opciones enviadas
@@ -102,20 +108,21 @@ function enviar(URL){
   return  fetch(URL, requestOptions)
     .then(response => {
         if (!response.ok) {
-        throw new Error(`Network response was not ok | status: ${response.status} ${response.statusText}`);
+        throw new Error( "[" + new Date().toLocaleString() + "]: Network response was not ok | status: ${response.status} ${response.statusText}");
         }
         
         return response.json(); // Convierte la respuesta a JSON
     })
     .then(data => {
+        console.log("[" + new Date().toLocaleString() + "]: API utilizada:", URL);
         console.dir(data);
       //  console.dir(data[0].Data); // Accede al array "Data" que tiene el resultado del SP
        //return data[0].Data;
        return data;
     })
     .catch(error => {
-        console.error('Error al usar la API. URL', URL);
-        console.error('El error resultante:', error);
+        console.error("[" + new Date().toLocaleString() + "]: Error al usar la API. URL", URL);
+        console.error("[" + new Date().toLocaleString() + "]: El error resultante:", error);
     });
 }
 

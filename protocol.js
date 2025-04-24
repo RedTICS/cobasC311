@@ -1,4 +1,6 @@
-var logger = require('winston');
+//var logger = require('winston');
+var logger = require('./logger'); // Importa el logger configurado
+
 var SerialPort = require('serialport');
 
 // Internal Dependencies
@@ -9,7 +11,7 @@ var app = require('./app');
 //var db = require('./db'); --> Ahora usamos la API
 
 // Init logging, imprime en consola cuando este en modo debugging
-logger.level = config.logLevel;
+//logger.level = config.logLevel;
 
 // Global variables for Client and Server mode
 var isTransferState = false;
@@ -24,22 +26,21 @@ function init() {
     port.on('close', handlePortClose);
     port.on('data', handlePortData);
     port.on('error', function (err) {
-        logger.error(err.message);
-        throw new Error('Port Error: ' + err.message);
-    })
+       throw new Error("["+ new Date().toLocaleString() + "] : Port Error: " + err.message);
+    });
 }
 
 
 
 function handlePortOpen() {
-    logger.info('Port open. Data rate: ' + port.options.baudRate);
-    logger.info('Data Bits.: ' + port.options.dataBits);
-    logger.info('Parity.: ' + port.options.parity);
-    logger.info('Stop bit.: ' + port.options.stopBits);
+    logger.info("Port open. Data rate: " + port.options.baudRate);
+    logger.info("Data Bits.: " + port.options.dataBits);
+    logger.info("Parity.: " + port.options.parity);
+    logger.info("Stop bit.: " + port.options.stopBits);
 }
 
 function handlePortClose() {
-    logger.info('Port Closed.');
+    logger.info("Port Closed.");
 }
 
 function handlePortWrite(data) {
@@ -73,55 +74,51 @@ function readDataAsServer(data) {
     var response = '';
 
     if (data === token.ENQ) { //ENQ es un código de control que significa "¿Puedo enviar datos?"
-        logger.info('Request: ENQ');
+        logger.info("Request: ENQ");
         if (!isTransferState) {
             isTransferState = true;
             response = token.ACK;
         }
         else {
-            logger.error('ENQ is not expected. Transfer state already.');
+            logger.error("ENQ is not expected. Transfer state already.");
             response = token.NAK;
         }
     }
     else if (data === token.ACK) { //"Mensaje recibido"
-        logger.error('ACK is not expected.');
-        throw new Error('ACK is not expected.');
+        throw new Error("["+ new Date().toLocaleString() + "] : ACK is not expected.");
     }
     else if (data === token.NAK) {
-        logger.error('NAK is not expected.');
-        throw new Error('NAK is not expected.');
+        throw new Error("["+ new Date().toLocaleString() + "] : NAK is not expected.");
     }
     else if (data === token.EOT) { // EOT (fin de transmisión)
         if (isTransferState) {
             isTransferState = false;
-            logger.info('EOT accepted. OK');
+            logger.info("EOT accepted. OK");
         }
         else {
-            logger.error('Not ready to accept EOT message.');
-            throw new Error('Not ready to accept EOT message.');
+            throw new Error("["+ new Date().toLocaleString() + "] : Not ready to accept EOT message.");
         }
     }
     else if (data.startsWith(token.STX)) {
         if (!isTransferState) {
             discard_input_buffers();
-            logger.error('Not ready to accept messages');
+            logger.error("Not ready to accept messages");
             response = token.NAK;
         }
         else {
             try {
-                logger.info('Accept message.Handling message');
+                logger.info( "Accept message.Handling message");
                 handleMessage(data);
                 response = token.ACK;
             }
             catch (err) {
-                logger.error('Error occurred on message handling.' + err)
+                logger.error("Error occurred on message handling." + err)
                 response = token.NAK;
             }
         }
     }
     else {
-        logger.error('Invalid data.');
-        throw new Error('Invalid data.');
+        throw new Error("["+ new Date().toLocaleString() + "] : Invalid data.");
     }
 
     handlePortWrite(response);
@@ -129,17 +126,17 @@ function readDataAsServer(data) {
 
 function handleMessage(message) {
     if (codec.isChunkedMessage(message)) {
-        logger.debug('handleMessage: Is chunked transfer.');
+        logger.info("handleMessage: Is chunked transfer.");
         inputChunks.push(message);
     }
     else if (typeof inputChunks !== 'undefined' && inputChunks.length > 0) {
-        logger.debug('handleMessage: Previous chunks. This must be the last one');
+        logger.info("handleMessage: Previous chunks. This must be the last one");
         inputChunks.push(message);
         dispatchMessage(inputChunks.join(''), token.ENCODING);
         inputChunks = [];
     }
     else {
-        logger.debug('handleMessage: Complete message. Dispatching');
+        logger.info("handleMessage: Complete message. Dispatching");
         dispatchMessage(message, token.ENCODING);
     }
 }
@@ -172,16 +169,16 @@ function readDataAsClient(data) {
         if (lastSendData === token.ENQ) {
             //TODO: Link Contention??
         }
-        throw new Error('Client should not receive ENQ.');
+        throw new Error("["+ new Date().toLocaleString() + "] : Client should not receive ENQ.");
     }
     else if (data === token.ACK) {
-        logger.debug('ACK Response');
+        logger.info("ACK Response");
         lastSendOk = true;
         try {
             sendMessage();
         }
         catch (error) {
-            logger.debug(error);
+            logger.error(error);
             closeClientSession();
         }
         //handlePortWrite(message); //self.push(message)
@@ -195,7 +192,7 @@ function readDataAsClient(data) {
 
         // The client tries to repeat last
         // send for allowed amount of attempts. 
-        logger.debug('NAK Response');
+        logger.info("NAK Response");
         if (lastSendData === token.ENQ) {
             openClientSession();
         }
@@ -205,6 +202,7 @@ function readDataAsClient(data) {
                 sendMessage();
             }
             catch (error) {
+                logger.error(error);
                 closeClientSession();
             }
         }
@@ -215,14 +213,14 @@ function readDataAsClient(data) {
     }
     else if (data === token.EOT) {
         isTransferState = false;
-        throw new Error('Client should not receive EOT.');
+        throw new Error("["+ new Date().toLocaleString() + "] : Client should not receive EOT.");
     }
     else if (data.startsWith(token.STX)) {
         isTransferState = false;
-        throw new Error('Client should not receive ASTM message.');
+        throw new Error("["+ new Date().toLocaleString() + "] : Client should not receive ASTM message.");
     }
     else {
-        throw new Error('Invalid data.');
+        throw new Error("["+ new Date().toLocaleString() + "] : Invalid data.");
     }
 }
 
@@ -245,14 +243,18 @@ function sendMessage() {
         }
         else {
            //db.getNextProtocolToSend()
-           app.getNextProtocolToSend(). //Traigo los datos con la API
-           then(function (results) {
+           
+           //Traigo los datos con la API
+           app.getNextProtocolToSend().then(function (results) {
+            //results contiene un arreglo del protocolo a enviar
+            if (results){
                 for (var i = 0; i < results.length; i++) { // Always only 1 iteration
                     var protocol = results[i];
                     prepareMessagesToSend(protocol)
                     prepareNextEncodedMessage();
                     sendData();
                 }
+            }
             }, function (err) {
                 logger.error("Something bad happened:", err);
             });
@@ -304,7 +306,7 @@ function openClientSession() {
     logger.info('Open Client Session');
     retryCounter = retryCounter + 1;
     if (retryCounter > 6) {
-        logger.error('Exceed number of retries');
+        logger.error("Exceed number of retries");
         closeClientSession();
     }
     else {
@@ -316,7 +318,7 @@ function openClientSession() {
 }
 
 function closeClientSession() {
-    logger.debug('Close Client Session');
+    logger.info("Close Client Session");
     handlePortWrite(token.EOT); // Envia un mensaje EOT (fin de transmisión)
     isTransferState = false;
     isClientMode = false;
@@ -325,11 +327,12 @@ function closeClientSession() {
 
 function checkDataToSend() {
    // db.hasProtocolsToSend().then(function (results) 
-    app.hasProtocolsToSend().then(function (results) //Ahora trae el resultado por API
+   //Ahora trae el resultado por API
+    app.hasProtocolsToSend().then(function (results) 
     {
-        if (results[0].Cantidad > 0) {
+        if (results && results[0] && results[0].Cantidad > 0) {
             logger.info("Exist data to send");
-            if (!isClientMode) {s
+            if (!isClientMode) {
                 openClientSession();
             }
         }
@@ -338,7 +341,7 @@ function checkDataToSend() {
                 isClientMode = false;
             }
             else {
-                logger.info('Waiting for data to send');
+                logger.info("Waiting for data to send");
                 return;
             }
         }
@@ -354,7 +357,7 @@ function initTimer() {
 
 function timeoutCommunication() {
     if (isTransferState) {
-        throw new Error('Timeout Communication');
+        throw new Error("["+ new Date().toLocaleString() + "] : Timeout Communication");
     }
 }
 

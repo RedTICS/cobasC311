@@ -8,10 +8,10 @@ node_modules
 test/*
 otros/*
 .vscode
-
-# Archivo de configuración producción y test
-config.json
-configTest.json
+test.js
+log/*
+# Archivo de configuración producción y test en .JSON
+*.json
 
 # Archivos ocultos
 .hg
