@@ -1,14 +1,11 @@
-var config = require('./config');
+/*var config = require('./config');
 var logger = require('winston');
-
-
-var db = require('./db');
+var db = require('./db');*/
 var record = require('./record')
+var api = require('./api');
 
 function processResultRecords(records){
- //db.logMessages("Mensaje de cobas: "+ records);
-
-    //db.logMessages("Mensaje de cobas: ", records);
+ //db.logMessages("Mensaje de cobas C311: "+ records);
 
     var record = [];
     for (var i = 0; i < records.length; i++) {
@@ -40,9 +37,8 @@ function handleResult(resultRecord, orderRecord){
     var order = new record.OrderRecord();
     order.build(orderRecord);
     var result = new record.ResultRecord(resultRecord); 
-	db.saveResult(result,order);
-  //db.logMessages("Datos de Cobas a SIL, número de protocolo " + orderRecord[2] );
-
+	//db.saveResult(result,order);
+    api.enviarResultado(result,order);
 }
 
 
@@ -100,12 +96,22 @@ function composeOrderMessages(protocol){
     
 }
 
-function newOrder(){
+// function newOrder(){
     
-    return;
+//     return;
+// }
+
+function getNextProtocolToSend(){
+    return api.traerAnalisis();
+}
+
+function hasProtocolsToSend(){
+    return api.hasProtocolsToSend();
 }
 
 module.exports = {
     processResultRecords : processResultRecords,
-    composeOrderMessages: composeOrderMessages
+    composeOrderMessages: composeOrderMessages,
+    getNextProtocolToSend : getNextProtocolToSend,
+    hasProtocolsToSend : hasProtocolsToSend
 };
