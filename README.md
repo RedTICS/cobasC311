@@ -2,7 +2,14 @@
 Interface para equipo de laboratorio CobasC311
 
 # Configuración
-Se debe configurar en config.ts el numero del idEfector, que se encuentra en la BD del SilMultifector en la tabla [Sys_Efector].
+Se debe configurar en config.json el numero del idEfector, que se encuentra en la BD del SilMultifector en la tabla [Sys_Efector].
+
+_Se realizan las comunicaciones por API_
++ "apiUrl":"https://test.saludnqn.gob.ar:7118/" --> Este ejemplo tiene la API de Test
++ "funcionApiPostResultados": "executeSP?nombre=LAB_PostDatosEquipo&parametros="
++ "tokenAPI": " " --> Token provista
++ "funcionApiGetAnalisis" : "executeSP?nombre=LAB_GetTempProtocoloEnvio&parametros=", --> Trae el analisis a procesar
++ "funcionApiGetCantidadAnalisis" : "GetDbData?nombre=GetCantidadTempProtocoloEnvio&parametros=", -->Get que trae la cantidad de analisis que debe procesar el Cobas para el efector configurado
 
 # Tramas del ASTM
 La comunicación con cobas consiste en el envio y recepcion de _mensajes_ que se componen de _registros_ y a su vez cada registro se puede dividir en _tramas_ si el registro excede la longitud de 240 bytes cada trama comienza con un [STX] y le sigue un numero que indica el orden de la trama dentro del mensaje, las tramas intermedias terminan con un [ETB] y la trama final debe terminar con [ETX].
@@ -159,3 +166,5 @@ _caracteres no imprimibles_
 + [LF] nueva linea
 + [ETB] fin de trama
 + [ETX] fin del mensaje
+
+
