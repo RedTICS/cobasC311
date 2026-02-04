@@ -19,27 +19,6 @@ var s_Equipo = config.analyzer;  //equipo autonalizador
 var s_idEfector = config.idEfector; //id de efector-laboratorio que envia
 
 
-/** Pruebas*/
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-// hasProtocolsToSend();
-//traerAnalisis();
-//var URL = "https:/localhost:7118/executeSP?nombre=LAB_GetTempProtocoloEnvio&parametros=CobasC311|55|0"; /*
-//URL = "https://www.saludnqn.gob.ar:7118/executeSP?nombre=LAB_PostDatosEquipo&parametros=CobasC311|1|999|871|23.756"; 
-// console.log("aca estamos?");
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-// enviar(URL).
-// then(resultado => {
-//   console.log(resultado); 
-//   return resultado;
-//  }) ;
-//var jsonString= "[{ \"SP\": \"LAB_PostDatosEquipo\", \"ParametrosEntrada\": { \"@Equipo\": \"CobasC311\", \"@idEfector\": \"1\", \"@numero\": \"999\", \"@Prueba\": \"871\", \"@valor\": \"23.756\" }, \"ParametrosSalida\": { \"Sin parámetros de salida\": \"Fin\" }, \"Data\": [{ \"Resultado\": \"No OK 2\" }] }]";
-//console.log(isValidJSON(jsonString));
-//enviar("http://localhost:5118/executeSP?nombre=LAB_PostDatosEquipo&parametros=CobasC311|1|999|871|23.756");*//*
-/*fetch("https://incomplete-chain.badssl.com ", requestOptions).
-then(repuesta => console.log(repuesta)).catch(error => console.log("Error de catch del fetch ",error));*/
-//traerAnalisis();
-//ActualizarTempProtocolo(27704);
-//ActualizarTempProtocolo(1);
 
 
 function isValidJSON(jsonString) {
