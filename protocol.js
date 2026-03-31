@@ -1,10 +1,13 @@
 //var logger = require('winston');
 var logger = require('./logger'); // Importa el logger configurado
 
-var SerialPort = require('serialport');
-
-// Internal Dependencies
 var config = require('./config');
+var SerialPort = require('serialport');  //Para producion
+//var SerialPort = require('./simulacion/fakeSerialAdapter'); //Para testear en consola llamando simultaneamente node protocol.js y node simulacion/simulacion.js
+
+   
+  
+// Internal Dependencies
 var token = require('./constants');
 var codec = require('./codec');
 var app = require('./app');
